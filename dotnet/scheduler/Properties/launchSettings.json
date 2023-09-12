@@ -1,0 +1,14 @@
+{
+  "profiles": {
+    "scheduler": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7211"
+    },
+    "Docker": {
+      "commandName": "Docker",
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
+      "httpPort": 30659,
+      "useSSL": false
+    }
+  }
+}

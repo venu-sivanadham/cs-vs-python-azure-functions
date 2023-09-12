@@ -1,0 +1,14 @@
+{
+  "profiles": {
+    "MessageProcessor": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7069"
+    },
+    "Docker": {
+      "commandName": "Docker",
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
+      "httpPort": 30876,
+      "useSSL": false
+    }
+  }
+}
