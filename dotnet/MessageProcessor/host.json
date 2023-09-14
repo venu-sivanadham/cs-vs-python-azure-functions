@@ -8,5 +8,12 @@
       },
       "enableLiveMetricsFilters": true
     }
+  },
+  "extensions": {
+    "queues": {
+      "batchSize": 32,
+      "maxPollingInterval": "00:00:01",
+      "newBatchThreshold": 6
+    }
   }
 }

@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34009.444
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "scheduler", "scheduler\scheduler.csproj", "{0BB9198D-D654-4941-BA2B-50582B416CE3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "scheduler", "scheduler\scheduler.csproj", "{0BB9198D-D654-4941-BA2B-50582B416CE3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageProcessor", "MessageProcessor\MessageProcessor.csproj", "{2F8D22BC-4BE9-4B7A-8A1B-E92D00643083}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MessageProcessor", "MessageProcessor\MessageProcessor.csproj", "{2F8D22BC-4BE9-4B7A-8A1B-E92D00643083}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "common", "common\common.csproj", "{CDB0A0D8-85E0-40FC-BF49-58F42D76F084}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{2F8D22BC-4BE9-4B7A-8A1B-E92D00643083}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2F8D22BC-4BE9-4B7A-8A1B-E92D00643083}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2F8D22BC-4BE9-4B7A-8A1B-E92D00643083}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CDB0A0D8-85E0-40FC-BF49-58F42D76F084}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CDB0A0D8-85E0-40FC-BF49-58F42D76F084}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CDB0A0D8-85E0-40FC-BF49-58F42D76F084}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CDB0A0D8-85E0-40FC-BF49-58F42D76F084}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

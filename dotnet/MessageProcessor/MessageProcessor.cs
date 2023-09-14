@@ -3,7 +3,9 @@ using Azure.Storage.Queues.Models;
 using Azure.Storage.Blobs;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics;
+using Common.Model;
+using Azure.Storage.Blobs.Specialized;
+using System.Text;
 
 namespace MessageProcessor
 {
@@ -17,51 +19,56 @@ namespace MessageProcessor
         }
 
         [Function(nameof(MessageProcessor))]
-        public async Task RunAsync([QueueTrigger("checks", Connection = "AzureWebJobsStorage")] QueueMessage message)
+        public async Task RunAsync([QueueTrigger("checks", Connection = "AzureWebJobsStorage")] QueueMessage message,
+            FunctionContext context)
         {
-            var sw = Stopwatch.StartNew();
-            string msg = string.Empty;
+            var status = new TriggerEventDetails
+            {
+                StartTime = DateTime.UtcNow,
+                TriggerType = "MessageProcessor",
+                Status = "Succeeded"
+            };
 
             try
             {
-                msg = message.MessageText;
+                var jobMsg = JobMessageContent.ToJobMessageContent(message.MessageText);
+                int.TryParse(jobMsg.JobId, out int iteration);
+                var invocationid = jobMsg.InvocationId;
+                status.PickupTime = DateTime.UtcNow - jobMsg.InsertTimeUtc;
+                status.TriggerData = jobMsg;
 
-                _logger.LogInformation($"C# Queue trigger: {msg}");
-
-                var constring = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
-
-                int.TryParse(msg.Split(':').ToList().First(), out int iteration);
-                var invocationid = msg.Split(':').ToList().Last();
-
-                var blobClient = new BlobClient(constring, "checks", invocationid);
-                if(await blobClient.ExistsAsync())
-                {
-                    _logger.LogInformation($"Blob {blobClient.Name} exists");
-
-                    if (iteration == 31)
-                    {
-                        await blobClient.DeleteAsync();
-                        _logger.LogInformation($"Deleted the blob {blobClient.Name}.");
-                    }
-                    else
-                    {
-                        var content = (await blobClient.DownloadContentAsync()).Value.Content.ToString();
-                        _logger.LogInformation($"Blob {blobClient.Name} content: {content}");
-                    }
-                }
-                else
-                {
-                    _logger.LogInformation($"Blob {blobClient.Name} does not exist");
-                }
+                await ProcessMessageAsync(jobMsg, context);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error processing message");
+                status.Status = "Failed";
             }
             finally
             {
-                sw.Stop();
-                _logger.LogInformation($"Message processing time: {sw.ElapsedMilliseconds}ms, Content: {msg}");
+                status.EndTime = DateTime.UtcNow;
+                status.Duration = status.EndTime - status.StartTime;
+
+                _logger.LogInformation($"{status.TriggerType} execution details: {status.ToString()}");
+            }
+        }
+
+        private async Task ProcessMessageAsync(JobMessageContent jobMsg, FunctionContext context)
+        {
+            var constring = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
+            var hostId = Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID");
+
+            var blobClient = new AppendBlobClient(constring, "checks", jobMsg.JobName);
+            if (await blobClient.ExistsAsync())
+            {
+                var blockContent = $"{hostId}:{context.InvocationId};";
+                _logger.LogInformation($"Blob {blobClient.Name} exists, appending the block with {blockContent}.");
+                
+                await blobClient.AppendBlockAsync(new MemoryStream(Encoding.UTF8.GetBytes(blockContent)));
+            }
+            else
+            {
+                _logger.LogInformation($"Blob {blobClient.Name} does not exist");
             }
         }
     }
