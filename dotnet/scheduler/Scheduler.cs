@@ -21,7 +21,7 @@ namespace scheduler
         }
 
         [Function("Scheduler")]
-        public async Task RunAsync([TimerTrigger("*/10 * * * * *")] MyInfo myTimer,
+        public async Task RunAsync([TimerTrigger("*/10 * * * * *")] TriggerInfo myTimer,
             FunctionContext context,
             CancellationToken token)
         {
@@ -31,6 +31,7 @@ namespace scheduler
                 TriggerType = "Scheduler",
                 Status = "Succeeded"
             };
+
             int iMsg = 0;
 
             try
@@ -160,14 +161,14 @@ namespace scheduler
         }
     }
 
-    public class MyInfo
+    public class TriggerInfo
     {
-        public MyScheduleStatus ScheduleStatus { get; set; }
+        public ScheduleStatus ScheduleStatus { get; set; }
 
         public bool IsPastDue { get; set; }
     }
 
-    public class MyScheduleStatus
+    public class ScheduleStatus
     {
         public DateTime Last { get; set; }
 
