@@ -19,7 +19,8 @@ namespace MessageProcessor
         }
 
         [Function(nameof(MessageProcessor))]
-        public async Task RunAsync([QueueTrigger("checks", Connection = "AzureWebJobsStorage")] QueueMessage message,
+        public async Task RunAsync(
+            [QueueTrigger("checks", Connection = "AzureWebJobsStorage")] QueueMessage message,
             FunctionContext context)
         {
             var status = new TriggerEventDetails
@@ -32,7 +33,6 @@ namespace MessageProcessor
             try
             {
                 var jobMsg = JobMessageContent.ToJobMessageContent(message.MessageText);
-                int.TryParse(jobMsg.JobId, out int iteration);
                 var invocationid = jobMsg.InvocationId;
                 status.PickupTime = DateTime.UtcNow - jobMsg.InsertTimeUtc;
                 status.TriggerData = jobMsg;
@@ -55,6 +55,13 @@ namespace MessageProcessor
 
         private async Task ProcessMessageAsync(JobMessageContent jobMsg, FunctionContext context)
         {
+            // Do work here.
+
+            await UpdateStatus(jobMsg, context);
+        }
+
+        private async Task UpdateStatus(JobMessageContent jobMsg, FunctionContext context)
+        {
             var constring = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
             var hostId = Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID");
 
@@ -63,7 +70,7 @@ namespace MessageProcessor
             {
                 var blockContent = $"{hostId}:{context.InvocationId};";
                 _logger.LogInformation($"Blob {blobClient.Name} exists, appending the block with {blockContent}.");
-                
+
                 await blobClient.AppendBlockAsync(new MemoryStream(Encoding.UTF8.GetBytes(blockContent)));
             }
             else
