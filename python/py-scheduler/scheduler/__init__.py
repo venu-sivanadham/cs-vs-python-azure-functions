@@ -67,7 +67,7 @@ def main(mytimer: func.TimerRequest, context: func.Context) -> None:
     logging.info('Python timer trigger function ran at %s', start_time)
     
     status = {
-        "StartTime": start_time,
+        "StartTime": start_time.strftime("%Y-%m-%d %H:%M:%S%z"),
         "TriggerType": "Scheduler",
         "Status": "Succeeded"
     }
@@ -106,7 +106,8 @@ def main(mytimer: func.TimerRequest, context: func.Context) -> None:
         logging.exception(f"Error sending message to queue: {ex}")
         status["Status"] = "Failed"
     finally:
-        status["EndTime"] = datetime.utcnow()
-        status["Duration"] = status["EndTime"] - status["StartTime"]
-        status["TriggerData"] = iMsg
+        end_time = datetime.utcnow()
+        status["EndTime"] = end_time.strftime("%Y-%m-%d %H:%M:%S%z")
+        status["DurationInSec"] = f"{(end_time - start_time).total_seconds()}"
+        status["ScheduledMessages"] = f"{iMsg}"
         logging.info(json.dumps(status))
