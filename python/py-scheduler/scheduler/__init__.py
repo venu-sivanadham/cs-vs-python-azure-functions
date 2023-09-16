@@ -31,8 +31,8 @@ def setup_append_blob(connection_string, append_blob_name) -> None:
 
         try:
             blob_stats["LastSchedulerStartTime"] = blob_properties.metadata["TriggerData"]
-            blob_stats["BlobLastModifiedTime"] = blob_properties.last_modified
-            blob_stats["BlobCreationTime"] = blob_properties.creation_time
+            blob_stats["BlobLastModifiedTime"] = f"{blob_properties.last_modified}"
+            blob_stats["BlobCreationTime"] = f"{blob_properties.creation_time}"
             
             blob_content = append_blob_client.download_blob().content_as_text()
             host_ids = set()
@@ -40,21 +40,22 @@ def setup_append_blob(connection_string, append_blob_name) -> None:
 
             if (blob_content is not None) and len(blob_content) > 0:
                 for entry in blob_content.split(';'):
-                    key, value = entry.split(':')
-                    host_ids.add(key)
-                    invocation_ids.add(value)
+                    if entry.find(':') > 0:
+                        key, value = entry.split(':')
+                        host_ids.add(key)
+                        invocation_ids.add(value)
 
             blob_stats["ProcessedMessageCount"] = len(invocation_ids)
             blob_stats["HostCount"] = len(host_ids)
 
-            logging.info(blob_stats)
+            logging.info(json.dumps(blob_stats))
 
             append_blob_client.delete_blob()
         except Exception as ex:
             logging.exception(f"Exception while processing append blob: {ex}")
 
     metadata = {
-        "TriggerData": f"{datetime.utcnow()}"
+        "TriggerData": datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S%z")
     }
     append_blob_client.create_append_blob(metadata=metadata)
 
@@ -108,4 +109,4 @@ def main(mytimer: func.TimerRequest, context: func.Context) -> None:
         status["EndTime"] = datetime.utcnow()
         status["Duration"] = status["EndTime"] - status["StartTime"]
         status["TriggerData"] = iMsg
-        logging.info(status)    
+        logging.info(json.dumps(status))
