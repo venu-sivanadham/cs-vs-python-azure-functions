@@ -21,7 +21,7 @@ namespace scheduler
         }
 
         [Function("Scheduler")]
-        public async Task RunAsync([TimerTrigger("*/10 * * * * *")] TriggerInfo myTimer,
+        public async Task RunAsync([TimerTrigger("0,20,40 * * * * *")] TriggerInfo myTimer,
             FunctionContext context,
             CancellationToken token)
         {
@@ -87,7 +87,7 @@ namespace scheduler
         {
             var appendBlobName = string.Format(
                 MessageConstants.ApendBlobFromatter,
-                status.StartTime.Second / 10);
+                status.StartTime.Second / 20);
 
             var blobContainerClient = new BlobContainerClient(connectionString, "checks");
             await blobContainerClient.CreateIfNotExistsAsync(cancellationToken: token);

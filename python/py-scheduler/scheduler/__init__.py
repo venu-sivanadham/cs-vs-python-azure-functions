@@ -78,7 +78,7 @@ def main(mytimer: func.TimerRequest, context: func.Context) -> None:
         connection_string = os.environ["AzureWebJobsStorage"]
 
         # Setup the append blob
-        blob_name = f"ApendBlob_{int(start_time.second / 10)}"
+        blob_name = f"ApendBlob_{int(start_time.second / 20)}"
         setup_append_blob(connection_string, blob_name)
 
         queue_client = QueueClient.from_connection_string(connection_string, "checks")
