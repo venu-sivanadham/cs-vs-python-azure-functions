@@ -76,7 +76,7 @@ namespace scheduler
                 status.Duration = status.EndTime - status.StartTime;
                 status.TriggerData = iMsg;
 
-                _logger.LogInformation($"{status.TriggerType} execution details: {status}");
+                _logger.LogCritical($"{status}");
             }
         }
 
@@ -157,7 +157,7 @@ namespace scheduler
             blobStats.ProcessedMessageCount = invocationIds.Count;
             blobStats.HostCount = hostIds.Count;
 
-            _logger.LogInformation($"{blobStats}");
+            _logger.LogCritical($"{blobStats}");
         }
     }
 

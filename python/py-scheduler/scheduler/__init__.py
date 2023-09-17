@@ -10,7 +10,7 @@ from azure.storage.queue import QueueClient
 from azure.core.exceptions import ResourceExistsError
 
 # Setup the append blob
-def setup_append_blob(connection_string, append_blob_name) -> None:
+def setup_append_blob(connection_string: str, append_blob_name: str, start_time: datetime) -> None:
     
     blob_service_client = BlobServiceClient.from_connection_string(connection_string)
     container_client = blob_service_client.get_container_client("checks")
@@ -48,14 +48,14 @@ def setup_append_blob(connection_string, append_blob_name) -> None:
             blob_stats["ProcessedMessageCount"] = len(invocation_ids)
             blob_stats["HostCount"] = len(host_ids)
 
-            logging.info(json.dumps(blob_stats))
+            logging.critical(json.dumps(blob_stats))
 
             append_blob_client.delete_blob()
         except Exception as ex:
             logging.exception(f"Exception while processing append blob: {ex}")
 
     metadata = {
-        "TriggerData": datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S%z")
+        "TriggerData": start_time.strftime("%Y-%m-%d %H:%M:%S%z")
     }
     append_blob_client.create_append_blob(metadata=metadata)
 
@@ -79,7 +79,7 @@ def main(mytimer: func.TimerRequest, context: func.Context) -> None:
 
         # Setup the append blob
         blob_name = f"ApendBlob_{int(start_time.second / 20)}"
-        setup_append_blob(connection_string, blob_name)
+        setup_append_blob(connection_string, blob_name, start_time)
 
         queue_client = QueueClient.from_connection_string(connection_string, "checks")
                 
@@ -110,4 +110,4 @@ def main(mytimer: func.TimerRequest, context: func.Context) -> None:
         status["EndTime"] = end_time.strftime("%Y-%m-%d %H:%M:%S%z")
         status["DurationInSec"] = f"{(end_time - start_time).total_seconds()}"
         status["ScheduledMessages"] = f"{iMsg}"
-        logging.info(json.dumps(status))
+        logging.critical(json.dumps(status))
