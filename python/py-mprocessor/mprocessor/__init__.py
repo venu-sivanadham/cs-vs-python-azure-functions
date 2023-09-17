@@ -1,6 +1,7 @@
 import logging
 import os
 import json
+import requests
 
 import azure.functions as func
 from datetime import datetime
@@ -26,6 +27,14 @@ def main(msg: func.QueueMessage, context: func.Context) -> None:
         connection_string = os.environ["AzureWebJobsStorage"]
         host_id = os.environ["WEBSITE_INSTANCE_ID"]
 
+        # Do work here
+        request_start_time = datetime.utcnow()
+        os_provider_url = "https://veshivanpyfuncsa01.z13.web.core.windows.net/metrics.html"
+        os_web_response = requests.get(os_provider_url).text
+        request_duration = datetime.utcnow() - request_start_time
+        logging.info(f"Received the OS Info of size: {len(os_web_response)}, call duration: {request_duration.microseconds}ms")
+
+        # Update status to upend blob
         blob_service_client = BlobServiceClient.from_connection_string(conn_str=connection_string)
         blob_client = blob_service_client.get_blob_client(container="checks", blob=blob_name)
         if blob_client.exists():

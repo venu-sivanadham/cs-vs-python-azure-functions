@@ -1,16 +1,17 @@
-using System;
 using Azure.Storage.Queues.Models;
-using Azure.Storage.Blobs;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Common.Model;
 using Azure.Storage.Blobs.Specialized;
 using System.Text;
+using common.Clients;
+using System.Diagnostics;
 
 namespace MessageProcessor
 {
     public class MessageProcessor
     {
+        const string OS_WEB_ENDPOINT = "https://veshivancsfunc01b9e1.z13.web.core.windows.net/metrics.html";
         private readonly ILogger<MessageProcessor> _logger;
 
         public MessageProcessor(ILogger<MessageProcessor> logger)
@@ -56,6 +57,13 @@ namespace MessageProcessor
         private async Task ProcessMessageAsync(JobMessageContent jobMsg, FunctionContext context)
         {
             // Do work here.
+            var sw = Stopwatch.StartNew();
+            var osClient = new OSProviderClient(OS_WEB_ENDPOINT);
+            var osInfo = await osClient.GetOSInfoAsync();
+            sw.Stop();
+
+            _logger.LogInformation($"Received the OS Info of size: {osInfo.Length}," +
+                $" call duration: {sw.ElapsedMilliseconds}ms.");
 
             await UpdateStatus(jobMsg, context);
         }
