@@ -29,7 +29,7 @@ async def main(msg: func.QueueMessage, context: func.Context) -> None:
 
         # Do work here
         request_start_time = datetime.utcnow()
-        os_provider_url = "https://veshivanpyfuncsa01.z13.web.core.windows.net/metrics.html"
+        os_provider_url = "https://veshivanpyasyncfunca636.z13.web.core.windows.net/metrics.html"
         async with aiohttp.ClientSession() as session:
             async with session.get(os_provider_url) as response:
                 os_web_response = await response.text()
